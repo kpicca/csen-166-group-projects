@@ -66,16 +66,29 @@ class ValueIterationAgent(ValueEstimationAgent):
         """
         "*** YOUR CODE HERE ***"
         states = self.mdp.getStates()
-        for i in self.iterations:
+
+        for i in range(self.iterations):
             prev_values = self.values.copy()
-            for state in states:
-                if (self.mdp.isTerminal(self, state)) or ():
-                    val = 0
+            new_values = util.Counter()
+
+            for s in states:
+                actions = self.mdp.getPossibleActions(s)
+
+                if self.mdp.isTerminal(s) or len(actions) == 0:
+                    new_values[s] = 0
+
                 else:
-                    qMax = -('inf')
-                    q = computeQValueFromValues(self, state, action)
-                    
-                    #v(s) = max Q(s, a)
+                    qMax = float('-inf')
+                    for a in actions:
+                        qVal = 0.0
+                        for n in nextState:
+                            qVal += self.mdp.getTransitionStatesAndProbs(s, a) * (self.mdp.getReward(s, a, n) + self.discount * prev_values[n])
+                        if qMax < qVal:
+                            qMax = getQValue
+                    new_values[s] = qMax
+
+            self.values = new_values
+                        
 
 
     def getValue(self, state):
@@ -109,14 +122,15 @@ class ValueIterationAgent(ValueEstimationAgent):
         """
         "*** YOUR CODE HERE ***"
         actions = self.mdp.getPossibleActions(state)
-        if actions = None:
+        if len(actions) == 0:
             return None
         for a in actions:
-            qMax = -('inf')
+            qMax = float('-inf')
             qVal = computeQValueFromValues(self, state, a)
             if qMax < qVal:
                 qMax = qVal
-        return qMax
+                bestAction = a
+        return bestAction
         util.raiseNotDefined()
 
     def getPolicy(self, state):
