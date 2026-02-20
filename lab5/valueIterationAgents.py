@@ -81,10 +81,10 @@ class ValueIterationAgent(ValueEstimationAgent):
                     qMax = float('-inf')
                     for a in actions:
                         qVal = 0.0
-                        for n in nextState:
-                            qVal += self.mdp.getTransitionStatesAndProbs(s, a) * (self.mdp.getReward(s, a, n) + self.discount * prev_values[n])
+                        for nextState, prob in self.mdp.getTransitionStatesAndProbs(s, a):
+                            qVal += prob * (self.mdp.getReward(s, a, nextState) + self.discount * prev_values[nextState])
                         if qMax < qVal:
-                            qMax = getQValue
+                            qMax = qVal
                     new_values[s] = qMax
 
             self.values = new_values
@@ -124,9 +124,9 @@ class ValueIterationAgent(ValueEstimationAgent):
         actions = self.mdp.getPossibleActions(state)
         if len(actions) == 0:
             return None
+        qMax = float('-inf')
         for a in actions:
-            qMax = float('-inf')
-            qVal = computeQValueFromValues(self, state, a)
+            qVal = self.computeQValueFromValues(self, state, a)
             if qMax < qVal:
                 qMax = qVal
                 bestAction = a
