@@ -1,3 +1,4 @@
+
 # valueIterationAgents.py
 # -----------------------
 # Licensing Information:  You are free to use or extend these projects for
@@ -104,9 +105,9 @@ class ValueIterationAgent(ValueEstimationAgent):
         """
         "*** YOUR CODE HERE ***"
         sum = 0
-        for state in nextState:
+        for nextState, prob in self.mdp.getTransitionStatesAndProbs(state, action):
             #sum of T(s, a, s') * (R(s, a, s') + discount * V(s'))
-            temp = self.mdp.getTransitionStatesAndProbs(state, action) * (self.mdp.getReward(state, action, nextState) + (self.discount * self.values[nextState]))
+            temp = prob * (self.mdp.getReward(state, action, nextState) + (self.discount * self.values[nextState]))
             sum = sum + temp
         return sum
         util.raiseNotDefined()
@@ -126,7 +127,7 @@ class ValueIterationAgent(ValueEstimationAgent):
             return None
         qMax = float('-inf')
         for a in actions:
-            qVal = self.computeQValueFromValues(self, state, a)
+            qVal = self.computeQValueFromValues(state, a)
             if qMax < qVal:
                 qMax = qVal
                 bestAction = a
