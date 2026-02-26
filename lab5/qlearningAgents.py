@@ -68,20 +68,13 @@ class QLearningAgent(ReinforcementAgent):
           there are no legal actions, which is the case at the
           terminal state, you should return a value of 0.0.
         """
-        "*** YOUR CODE HERE ***"
-        #Halt if not legal actions
-        legal_Actions = self.getLegalActions(state)
-        if len(legalActions) == 0:
+
+        legalActions = self.getLegalActions(state)
+        if not legalActions:
             return 0.0
         
-        #Otherwise, get Value
-        max_action= float('-inf')
-        for possible_action in legal_Actions:
-            check = self.getQValue(state, possible_action)
-            if  check >=  max_action:
-                max_action = check
-        
-        return max_action
+        #Return the path with the highest value
+        return max(self.getQValue(state, action) for action in legalActions)
 
 
     def computeActionFromQValues(self, state):
@@ -91,20 +84,18 @@ class QLearningAgent(ReinforcementAgent):
           you should return None.
         """
         "*** YOUR CODE HERE ***"
-        #Halt if not legal actions
-        legal_Actions = self.getLegalActions(state)
-        if legal_Actions is None:
+        legalActions = self.getLegalActions(state)
+        if not legalActions:
             return None
 
-        #Otherwise, get action
-        best_action = None
-        val = float('-inf')
-        for possible_action in self.getLegalActions(state):
-            check = self.getQValue(state, possible_action)
-            if  check >= val :
-                best_action = possible_action
+        # Find the maximum Q-value for the state
+        max_value = self.computeValueFromQValues(state)
         
-        return best_action
+        # Collect all actions that tie for the maximum Q-value
+        best_actions = [action for action in legalActions if self.getQValue(state, action) == max_value]
+        
+        # Break ties randomly! This is crucial.
+        return random.choice(best_actions)
 
     def getAction(self, state):
         """
@@ -143,11 +134,11 @@ class QLearningAgent(ReinforcementAgent):
           it will be called on your behalf
         """
         "*** YOUR CODE HERE ***"
-        #Compute (1-alpha) * Q(s,a) + alpha[R + gamma * max_a'Q(s',a')]
-        newValue = (1-self.alpha) * self.getQValue(state, action)
-        newValue += self.alpha * (reward + self.discount * self.computeValueFromQValues(nextState))
-        self.qValues[(state, action)] = newValue
-        return
+        # Calculate the sample value
+        sample = reward + self.discount * self.computeValueFromQValues(nextState)
+        
+        # Update the Q-value
+        self.qValues[(state, action)] = (1 - self.alpha) * self.qValues[(state, action)] + self.alpha * sample
 
     def getPolicy(self, state):
         return self.computeActionFromQValues(state)
